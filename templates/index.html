@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberAI - Assistant Pentest Professionnel</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Kanit:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --primary-dark: #4a148c;
+            --secondary: #ff4081;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #f5f5f5;
+            --terminal: #1e1e1e;
+            --terminal-text: #33ff33;
+            --terminal-border: #00ff00;
+            --warning: #ff9100;
+            --danger: #ff1744;
+            --success: #00e676;
+            --glass: rgba(30, 30, 30, 0.7);
+            --glass-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--dark);
+            color: var(--light);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(110, 72, 170, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 64, 129, 0.15) 0%, transparent 50%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .cyber-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--darker);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .cyber-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cyber-loader-content {
+            text-align: center;
+        }
+
+        .cyber-loader-logo {
+            font-family: 'Kanit', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .cyber-loader-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: loaderLine 2.5s infinite cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        @keyframes loaderLine {
+            0% { transform: scaleX(0); }
+            50% { transform: scaleX(1); transform-origin: left; }
+            51% { transform-origin: right; }
+            100% { transform: scaleX(0); transform-origin: right; }
+        }
+
+        .cyber-loader-bar {
+            width: 300px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .cyber-loader-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            animation: loaderProgress 2.5s infinite cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        @keyframes loaderProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .container.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-light);
+        }
+
+        .logo {
+            font-family: 'Kanit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            background-color: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-light);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-title i {
+            color: var(--secondary);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--light);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(110, 72, 170, 0.3), transparent);
+            border-left: 3px solid var(--primary);
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            margin-right: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-light);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .status-value {
+            font-weight: 500;
+        }
+
+        .status-secure {
+            color: var(--success);
+        }
+
+        .status-warning {
+            color: var(--warning);
+        }
+
+        .status-danger {
+            color: var(--danger);
+        }
+
+        .status-icon {
+            font-size: 1.2rem;
+        }
+
+        .query-card {
+            background-color: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--glass-light);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .query-card.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .card-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .card-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--light);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(110, 72, 170, 0.3);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(110, 72, 170, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(110, 72, 170, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn i {
+            font-size: 1.2rem;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .response-card {
+            background-color: var(--terminal);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--terminal-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .response-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(30, 30, 30, 0.8), rgba(30, 30, 30, 0.9));
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .response-card.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .response-card.show::before {
+            animation: terminalFadeIn 1.5s forwards;
+        }
+
+        @keyframes terminalFadeIn {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: var(--terminal-text);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .terminal-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .terminal-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .terminal-btn.close {
+            background-color: #ff5f56;
+        }
+
+        .terminal-btn.minimize {
+            background-color: #ffbd2e;
+        }
+
+        .terminal-btn.maximize {
+            background-color: #27c93f;
+        }
+
+        .terminal-content {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--terminal-text);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .terminal-content::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .terminal-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: var(--terminal-border);
+            border-radius: 3px;
+        }
+
+        .terminal-prompt {
+            color: var(--secondary);
+            margin-right: 0.5rem;
+        }
+
+        .typing-indicator {
+            display: none;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: inline-block;
+            opacity: 0.4;
+        }
+
+        .typing-dots span:nth-child(1) {
+            animation: pulse 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation: pulse 1.4s infinite ease-in-out 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation: pulse 1.4s infinite ease-in-out 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+        }
+
+        .command-history {
+            margin-top: 2rem;
+        }
+
+        .history-title {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .history-item i {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .history-item:hover i {
+            opacity: 1;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: var(--darker);
+            color: var(--light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            border: 1px solid var(--glass-light);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .glow-effect {
+            position: relative;
+        }
+
+        .glow-effect::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            box-shadow: 0 0 15px rgba(110, 72, 170, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glow-effect:hover::after {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .content-area {
+                order: 1;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        /* Animations spécifiques */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(110, 72, 170, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(110, 72, 170, 0.8); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .glowing {
+            animation: glow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-loader">
+        <div class="cyber-loader-content">
+            <div class="cyber-loader-logo">CyberAI</div>
+            <div class="cyber-loader-bar">
+                <div class="cyber-loader-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-robot logo-icon"></i>
+                <span>CyberAI</span>
+            </div>
+            <div class="user-info">
+                <div class="status-item">
+                    <span class="status-label">Session:</span>
+                    <span class="status-value status-secure">Active</span>
+                </div>
+                <div class="user-avatar tooltip" data-tooltip="Pentester Profile">
+                    <span>P</span>
+                    <span class="tooltiptext">Pentester Mode</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <aside class="sidebar">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-terminal"></i>
+                    <span>Navigation</span>
+                </h3>
+                <nav>
+                    <a href="#" class="nav-item active">
+                        <i class="fas fa-code"></i>
+                        <span>Assistant Pentest</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-bug"></i>
+                        <span>Vulnérabilités</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Scan Réseau</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Sécurité Web</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-history"></i>
+                        <span>Historique</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Paramètres</span>
+                    </a>
+                </nav>
+
+                <div class="status-bar" style="margin-top: 2rem;">
+                    <div class="status-item">
+                        <i class="fas fa-shield-alt status-icon status-secure"></i>
+                        <div>
+                            <div class="status-label">Niveau de sécurité</div>
+                            <div class="status-value status-secure">Élevé</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div class="query-card show" id="query-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-terminal"></i>
+                            <span>Assistant Pentest</span>
+                        </h2>
+                        <div class="card-actions">
+                            <button class="card-btn tooltip" data-tooltip="Clear">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                            <button class="card-btn tooltip" data-tooltip="History">
+                                <i class="fas fa-history"></i>
+                            </button>
+                            <button class="card-btn tooltip" data-tooltip="Settings">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="query-form">
+                        <div class="form-group">
+                            <label for="question-input" class="form-label">Entrez votre requête de pentest :</label>
+                            <input type="text" id="question-input" class="form-control" placeholder="Ex: Comment exploiter une vulnérabilité XSS sur example.com?" required>
+                        </div>
+
+                        <button type="submit" class="btn glow-effect">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Exécuter</span>
+                        </button>
+                    </form>
+
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span>Analyse en cours avec Gemini...</span>
+                    </div>
+                </div>
+
+                <div class="response-card" id="response-card">
+                    <div class="terminal-header">
+                        <div class="terminal-title">
+                            <i class="fas fa-terminal"></i>
+                            <span>Résultat de l'analyse</span>
+                        </div>
+                        <div class="terminal-actions">
+                            <div class="terminal-btn close"></div>
+                            <div class="terminal-btn minimize"></div>
+                            <div class="terminal-btn maximize"></div>
+                        </div>
+                    </div>
+                    <div class="terminal-content" id="terminal-content">
+                        <div id="response-text"></div>
+                    </div>
+                </div>
+
+                <div class="command-history">
+                    <h3 class="history-title">
+                        <i class="fas fa-clock"></i>
+                        <span>Historique des commandes</span>
+                    </h3>
+                    <div class="history-list" id="history-list">
+                        <!-- Les éléments d'historique seront ajoutés dynamiquement -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Gestion du loader
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.querySelector('.cyber-loader').classList.add('fade-out');
+                document.getElementById('main-container').classList.add('loaded');
+                
+                // Animation séquentielle des cartes
+                setTimeout(function() {
+                    document.getElementById('query-card').classList.add('show');
+                }, 300);
+            }, 1500);
+        });
+
+        // Gestion du formulaire
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('query-form');
+            const questionInput = document.getElementById('question-input');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const responseCard = document.getElementById('response-card');
+            const responseText = document.getElementById('response-text');
+            const terminalContent = document.getElementById('terminal-content');
+            const historyList = document.getElementById('history-list');
+
+            let commandHistory = JSON.parse(localStorage.getItem('pentestCommands')) || [];
+
+            // Afficher l'historique
+            function renderHistory() {
+                historyList.innerHTML = '';
+                commandHistory.slice().reverse().forEach((cmd, index) => {
+                    if (index >= 5) return; // Limiter à 5 éléments
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <span>${cmd.question.substring(0, 50)}${cmd.question.length > 50 ? '...' : ''}</span>
+                        <i class="fas fa-redo"></i>
+                    `;
+                    item.addEventListener('click', function() {
+                        questionInput.value = cmd.question;
+                        submitQuery(cmd.question);
+                    });
+                    historyList.appendChild(item);
+                });
+            }
+
+            renderHistory();
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const question = questionInput.value.trim();
+                if (question) {
+                    submitQuery(question);
+                }
+            });
+
+            function submitQuery(question) {
+                // Animation de soumission
+                questionInput.disabled = true;
+                form.querySelector('button').disabled = true;
+                typingIndicator.style.display = 'flex';
+                
+                // Ajouter à l'historique
+                commandHistory.push({
+                    question: question,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('pentestCommands', JSON.stringify(commandHistory));
+                renderHistory();
+
+                // Appel à l'API Gemini via Flask
+                fetch('/gemini_request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ question: question })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    displayResponse(data.response);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayResponse(`⚠️ Erreur: ${error.message}\n\nVeuillez réessayer ou vérifier votre connexion.`);
+                })
+                .finally(() => {
+                    questionInput.disabled = false;
+                    form.querySelector('button').disabled = false;
+                    typingIndicator.style.display = 'none';
+                });
+            }
+
+            function displayResponse(text) {
+                // Afficher la carte de réponse avec animation
+                responseCard.classList.add('show');
+                responseText.innerHTML = '';
+                
+                // Effet de terminal qui tape
+                let i = 0;
+                const speed = 10; // vitesse de frappe en ms
+                const prompt = '<span class="terminal-prompt">$</span> ';
+                
+                function typeWriter() {
+                    if (i < text.length) {
+                        // Gérer les sauts de ligne
+                        if (text.substring(i, i+1) === '\n') {
+                            responseText.innerHTML += '<br/>' + prompt;
+                        } else {
+                            if (i === 0 || text.substring(i-1, i) === '\n') {
+                                responseText.innerHTML += prompt;
+                            }
+                            responseText.innerHTML += text.substring(i, i+1);
+                        }
+                        i++;
+                        terminalContent.scrollTop = terminalContent.scrollHeight;
+                        setTimeout(typeWriter, speed);
+                    }
+                }
+                
+                // Commencer l'animation après un léger délai
+                setTimeout(() => {
+                    responseText.innerHTML = prompt;
+                    typeWriter();
+                }, 300);
+            }
+
+            // Effet de focus sur le champ de texte
+            questionInput.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.01)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+
+            questionInput.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+
+            // Effets pour les boutons de terminal
+            const terminalBtns = document.querySelectorAll('.terminal-btn');
+            terminalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('close')) {
+                        responseCard.classList.remove('show');
+                    } else if (this.classList.contains('minimize')) {
+                        terminalContent.style.display = terminalContent.style.display === 'none' ? 'block' : 'none';
+                    } else if (this.classList.contains('maximize')) {
+                        responseCard.style.maxHeight = responseCard.style.maxHeight === 'none' ? '500px' : 'none';
+                    }
+                });
+            });
+
+            // Tooltips améliorés
+            document.querySelectorAll('[data-tooltip]').forEach(el => {
+                const tooltip = document.createElement('span');
+                tooltip.className = 'tooltiptext';
+                tooltip.textContent = el.getAttribute('data-tooltip');
+                el.appendChild(tooltip);
+            });
+        });
+    </script>
+</body>
+</html>
